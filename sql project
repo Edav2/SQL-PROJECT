@@ -1,0 +1,52 @@
+/* SQL PROJECT */
+-- BUSINESS INSIGHTS; Any improvement made from the company/segment stakeholders?...
+--total sales of products that has been sold annually
+--total revenue from above sales
+
+/* Get the 10 customers that made profit from their sales annually */
+select TOP 10 [Customer Name],[sales], [profit]
+  FROM [project portfolio].[dbo].[Orders$]
+
+  select TOP 10 [segment],[product name], [sales], [profit]
+  FROM [project portfolio].[dbo].[Orders$]
+
+
+/*Ranking customers by Ship Mode */
+select [Customer Name],[Customer ID],[Ship Mode],
+RANK () OVER (ORDER BY [Customer ID] ASC) AS RANKS
+ FROM [project portfolio].[dbo].[Orders$]
+ GROUP BY [Customer Name], [Customer ID],[Ship Mode]
+
+/* Total sales made in each month of the year */
+select [Customer ID],[Sales], avg ([sales]/12) AS MonthlySales
+ FROM [project portfolio].[dbo].[Orders$]
+ GROUP BY [Customer ID],[sales] 
+ ORDER BY [sales] DESC;
+
+
+/* count the year difference from order date to shipping date*/
+ 
+ select TOP 10 [Order Date], [Ship Date],
+ (select DATEDIFF (DAYOFYEAR, 1, 31)) AS DAYDIFF,
+ (select DATEDIFF (MONTH, 1,31)) AS MONTHDIFF,
+ (select DATEDIFF (YEAR, '2014', '2017')) AS YEARDIFF
+ FROM [project portfolio].[dbo].[Orders$]
+
+
+/* Calculate the sum of sales and profit made by the year to get the total Revenue */
+--USING THE CTE FORMULAR;
+with Total_Income as 
+ (select [Ship Date],([Sales] + [Profit]) as Total_Income
+ FROM [project portfolio].[dbo].[Orders$])
+select
+ SUM (Total_income) AS Total_Revenue
+FROM Total_Income
+
+/* calculate cost of each products from sub category identifying customer name with their postal code */
+ select [Postal Code],[Customer Name], [Product Name],[Sub-Category],
+ SUM([Sales]/2 + [Profit]/2) AS Cost_Of_Each_Product
+ FROM [project portfolio].[dbo].[Orders$]
+ WHERE [Postal Code] IS NOT NULL
+ GROUP BY [Postal Code],[Customer Name], [Product Name],[Sub-Category]
+ ORDER BY 1,3
+
